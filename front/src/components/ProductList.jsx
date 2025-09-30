@@ -1,26 +1,23 @@
-import { useState, useEffect } from "react"
+import ProductRow from "./ProductRow"
 
-const ProductList = () => {
-    const [list,setList] = useState([])
-
-    useEffect(()=>{
-        async function loadProducts(){
-            try{
-                const req = await fetch("http://localhost:3000")
-                const res = await req.json()
-
-                console.log(res)
-            }
-            catch{
-                console.log("Ocurrio un error")
-            }
-        }
-        loadProducts()
-    },[])
-
-    return(
-        <div>product list</div>
-    )
+const ProductList = ({ products }) => {
+  return (
+    <table className="min-w-full table-fixed border border-gray-200 shadow-md rounded overflow-hidden">
+      <thead className="bg-gray-200 text-center text-gray-700 uppercase text-sm">
+        <tr className="">
+          <th className="px-6 py-3 w-1/4 text-center">Nombre</th>
+          <th className="px-6 py-3 w-1/4 text-center">Precio</th>
+          <th className="px-6 py-3 w-1/4 text-center">Stock</th>
+          <th className="px-6 py-3 w-1/4 text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200">
+        {products.map(product => (
+          <ProductRow key={product.id} product={product} />
+        ))}
+      </tbody>
+    </table>
+  )
 }
 
 export default ProductList

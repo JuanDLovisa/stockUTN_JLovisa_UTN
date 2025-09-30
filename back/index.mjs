@@ -1,17 +1,15 @@
-// GUIA https://expressjs.com/en/guide/routing.html
-// Importar Express
 import express from "express"
 import dotenv from "dotenv"
 import { sequelize } from './config/db.mjs'
 import { Product } from "./models/products.mjs"
 import cors from "cors"
-// Crear servidor Express
+
 const app = express()
 dotenv.config()
-// Agregar a express el soporte para JSON
+
 app.use(express.json())
 app.use(cors())
-// Crear Ruta GET para obtener productos
+
 app.get("/products", async function(req, res) {
   
   try{
@@ -28,12 +26,7 @@ app.get("/products", async function(req, res) {
     console.error(error)
     res.status(500).json({error:"Error al obtener productos"})
   }
-  // de req.query obtenemos todo lo que esta despues
-  // de el ? en la url
-  // pe: http://localhost:3000/?id=1
-  // obtenemos {id:1}
 })
-// Crear Ruta POST para crear producto
 app.post('/products', async (req, res) => {
 
   try{
@@ -51,15 +44,13 @@ app.post('/products', async (req, res) => {
   }
 })
 
-// Crear Ruta PUT para modificar producto
-
 app.put("/products", async (req, res) => {
   
   try{
-    const {id} = req.params()
-    const {name, price, stock} = req.body()
+    const {id} = req.params()      // ERROR: req.params no es función
+    const {name, price, stock} = req.body()  // ERROR: req.body no es función
 
-    const product = Product.findByPk(id)
+    const product = Product.findByPk(id) // Falta await
     if(!product){
      return res.status(400).json({error:"Producto no encontrado"})
     }
@@ -77,7 +68,6 @@ app.put("/products", async (req, res) => {
   }
 })
 
-// Crear Ruta DELETE para eliminar un producto
 app.delete("/products/:id", async (req, res) => {
   try {
     const { id } = req.params
@@ -95,9 +85,7 @@ app.delete("/products/:id", async (req, res) => {
   }
 })
 
-// Iniciar servidor express
 app.listen(3000, () => {
   console.log("servidor iniciado en puerto http://localhost:3000")
   sequelize.sync()
-  // Dentro de la función hay que agregar sequelize.sync()
 })
