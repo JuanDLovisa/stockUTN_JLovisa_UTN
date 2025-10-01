@@ -1,56 +1,115 @@
-import { useState } from "react"
+import { useParams, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
 
-const ProductForm = ({ onProductCreated }) => {
-  const [name, setName] = useState("")
-  const [price, setPrice] = useState("")
-  const [stock, setStock] = useState("")
+const ProductForm = () => {
+  const { id } = useParams();  // si viene edit, tendrá id
+  const navigate = useNavigate();
+
+  const [product, setProduct] = useState({
+    name: "",
+    price: "",
+    stock: "",
+  });
+
+  // Si hay id, cargar los datos del producto
+  useEffect(() => {
+    if (id) {
+      fetch(`http://localhost:3000/products?id=${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.length > 0) {
+            const prod = data[0];
+            setProduct({
+              name: prod.name,
+              price: prod.price,
+              stock: prod.stock,
+            });
+          }
+        })
+        .catch((error) => console.error("Error al obtener producto:", error));
+    }
+  }, [id]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProduct((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    const newProduct = { name, price: parseFloat(price), stock: parseInt(stock) }
+    e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:3000/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newProduct),
-      })
+      let url = "http://localhost:3000/products";
+      let method = "POST";
 
-      if (res.ok) {
-        setName("")
-        setPrice("")
-        setStock("")
-        onProductCreated()
-      } else {
-        console.error("Error al crear producto")
+      if (id) {
+        // edición
+        url += `/${id}`;
+        method = "PUT";
       }
-    } catch (err) {
-      console.error("Error de conexión:", err)
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(product),
+      });
+
+      if (!res.ok) {
+        throw new Error("Error al guardar producto");
+      }
+
+      // Volver a la lista o a donde quieras
+      navigate("/");
+    } catch (error) {
+      console.error("Error al guardar:", error);
     }
-  }
+  };
 
   return (
-    <div className="w-full flex h-screen justify-center items-center
-     bg-gradient-to-b from-gray-50 to-gray-200">
-      <form className="flex flex-col gap-4 w-full max-w-md p-6 bg-white 
-      rounded-md shadow-lg text-center" 
-      onSubmit={handleSubmit}>
-        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nombre"
-        className="ring ring-gray-300 p-2 rounded-md shadow-sm 
-        focus:outline-none focus:ring-2 focus:ring-sky-400/50" required />
-        <input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="Precio"
-        className="ring ring-gray-300 p-2 rounded-md shadow-sm 
-        focus:outline-none focus:ring-2 focus:ring-sky-400/50" required />
-        <input type="number" value={stock} onChange={e => setStock(e.target.value)} placeholder="Stock"
-        className="ring ring-gray-300 p-2 rounded-md shadow-sm 
-        focus:outline-none focus:ring-2 focus:ring-sky-400/50" required />
-        <button className="bg-sky-400 text-white py-2 rounded-md
-         hover:bg-sky-500 transition-colors cursor-pointer" 
-        type="submit">Agregar producto</button>
+    <div className="p-8 max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-4">
+        {id ? "Editar Producto" : "Crear Producto"}
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          name="name"
+          value={product.name}
+          onChange={handleChange}
+          placeholder="Nombre"
+          className="w-full p-2 border"
+          required
+        />
+        <input
+          type="number"
+          name="price"
+          value={product.price}
+          onChange={handleChange}
+          placeholder="Precio"
+          className="w-full p-2 border"
+          required
+        />
+        <input
+          type="number"
+          name="stock"
+          value={product.stock}
+          onChange={handleChange}
+          placeholder="Stock"
+          className="w-full p-2 border"
+          required
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          {id ? "Guardar Cambios" : "Crear Producto"}
+        </button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default ProductForm
+export default ProductForm;
