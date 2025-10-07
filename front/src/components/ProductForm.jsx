@@ -1,115 +1,94 @@
-import { useParams, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { Input } from './Input'
+import { useState } from 'react'
+import { toast } from "react-toastify"
+export const ProductForm = () => {
 
-const ProductForm = () => {
-  const { id } = useParams();  // si viene edit, tendrá id
-  const navigate = useNavigate();
-
-  const [product, setProduct] = useState({
-    name: "",
-    price: "",
-    stock: "",
-  });
-
-  // Si hay id, cargar los datos del producto
-  useEffect(() => {
-    if (id) {
-      fetch(`http://localhost:3000/products?id=${id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.length > 0) {
-            const prod = data[0];
-            setProduct({
-              name: prod.name,
-              price: prod.price,
-              stock: prod.stock,
-            });
-          }
-        })
-        .catch((error) => console.error("Error al obtener producto:", error));
-    }
-  }, [id]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProduct((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const [name, setName] = useState("")
+  const [price, setPrice] = useState("")
+  const [stock, setStock] = useState("")
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
-      let url = "http://localhost:3000/products";
-      let method = "POST";
+      const config = {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
 
-      if (id) {
-        // edición
-        url += `/${id}`;
-        method = "PUT";
+        body: JSON.stringify({
+          name: name,
+          price: price,
+          stock: stock
+        })
+      }
+      const url = "http://localhost:3000/"
+      const req = await fetch(url, config)
+      const res = await req.json()
+      if (res.error) {
+        toast.error(res.msg)
+        return
       }
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(product),
-      });
+      toast.success(res.msg)
+      setName("")
+      setPrice("")
+      setStock("")
 
-      if (!res.ok) {
-        throw new Error("Error al guardar producto");
-      }
 
-      // Volver a la lista o a donde quieras
-      navigate("/");
-    } catch (error) {
-      console.error("Error al guardar:", error);
+    } catch (er) {
+      console.log(er)
+      alert("Ha ocurrido un error")
     }
-  };
+
+  }
 
   return (
-    <div className="p-8 max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4">
-        {id ? "Editar Producto" : "Crear Producto"}
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
+    
+    <div className='mt-5 p-5 gap-5 flex flex-col justify-center items-center'>
+      <a href="/" className="bg-neutral-600 text-neutral-50 p-3 rounded shadow cursor-pointer 
+      font-bold hover:bg-green-600 mb-10 inline-block text-center" >Lista de productos</a>
+      <h2 className='text-4xl font-bold'>Producto</h2>
+
+      <form
+        className="flex flex-col gap-2 p-7 bg-gray-200 rounded border-[1px] border-gray-400 w-[40%]"
+        onSubmit={handleSubmit}
+
+      >
+
+        <Input
           type="text"
-          name="name"
-          value={product.name}
-          onChange={handleChange}
-          placeholder="Nombre"
-          className="w-full p-2 border"
-          required
+          name="Nombre de Producto"
+          placeholder="Ingrese el producto"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value)
+          }}
         />
-        <input
+        <Input
           type="number"
-          name="price"
-          value={product.price}
-          onChange={handleChange}
-          placeholder="Precio"
-          className="w-full p-2 border"
-          required
+          name="Precio"
+          placeholder="Ingrese el precio"
+          value={price}
+          onChange={(e) => {
+            setPrice(e.target.value)
+          }}
         />
-        <input
+        <Input
+          name="Cantidad"
           type="number"
-          name="stock"
-          value={product.stock}
-          onChange={handleChange}
-          placeholder="Stock"
-          className="w-full p-2 border"
-          required
+          placeholder="Ingrese la cantidad"
+          value={stock}
+          onChange={(e) => {
+            setStock(e.target.value)
+          }}
         />
         <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          {id ? "Guardar Cambios" : "Crear Producto"}
-        </button>
+          className="p-2 mt-5 border-[1px] bg-slate-950 text-slate-100 
+          font-black rounded hover:bg-green-600 cursor-pointer"
+        >Cargar</button>
       </form>
-    </div>
-  );
-};
 
-export default ProductForm;
+    </div>)
+}

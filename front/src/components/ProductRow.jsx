@@ -1,33 +1,17 @@
-import { useNavigate } from "react-router";
-
-const ProductRow = ({ product, onDelete }) => {
-  const navigate = useNavigate();
-
-  const handleEditClick = () => {
-    navigate(`/edit/${product.id}`);
-  };
-
+export const ProductRow = ({ data, onDelete }) => {
   return (
-    <tr className="hover:bg-gray-50">
-      <td className="px-6 py-4 border-x border-gray-200 text-center">{product.name}</td>
-      <td className="px-6 py-4 border-x border-gray-200 text-center">{product.price}</td>
-      <td className="px-6 py-4 border-x border-gray-200 text-center">{product.stock}</td>
-      <td className="px-6 py-4 text-center">
-        <button
-          className="bg-blue-400 rounded font-bold p-1 hover:underline mr-2 cursor-pointer"
-          onClick={handleEditClick}
-        >
-          Editar
-        </button>
-        <button
-          className="bg-red-500 rounded p-1 font-bold hover:underline cursor-pointer"
-          onClick={() => onDelete(product.id)}
-        >
-          Eliminar
-        </button>
-      </td>
-    </tr>
-  );
-};
+    <div className="flex rounded shadow gap-2 p-2 bg-green-900 text-white justify-between 
+    items-center mb-5">
 
-export default ProductRow;
+      <p className="flex-2">{data.name}</p>
+      <p className="flex-1">${data.price}</p>
+      <p className="flex-1">{data.stock}</p>
+      <section>
+        <button className="p-1 bg-neutral-950 text-neutral-50 rounded m-1 cursor-pointer 
+        hover:bg-red-600 shadow"
+          onClick={() => onDelete(data.name)}
+        >Borrar</button>
+      </section>
+    </div>
+  )
+}

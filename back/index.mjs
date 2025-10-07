@@ -10,75 +10,75 @@ dotenv.config();
 app.use(express.json());
 app.use(cors());
 
-app.get("/products", async (req, res) => {
+app.get("/", async (req, res) => {
   try {
-    const { id, name } = req.query;
-    let where = {};
-
-    if (id) where.id = id;
-    if (name) where.name = name;
-
-    const products = await Product.findAll({ where });
-    res.json(products);
+    const products = await Product.findAll();
+    res.json({
+      error: false,
+      data: products
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al obtener productos" });
+    res.json({
+      error: true,
+      msg: "Error al obtener productos"
+    })
   }
 });
 
-app.post("/products", async (req, res) => {
+app.post("/", async (req, res) => {
   try {
     const { name, price, stock } = req.body;
 
     if (!name || price == null || stock == null) {
-      return res.status(400).json({ error: "Todos los campos son obligatorios" });
+      res.json({
+        error: true,
+        msg: "Todos los campos son obligatorios"
+      })
     }
 
-    const newProduct = await Product.create({ name, price, stock });
-    res.status(201).json(newProduct);
+    const product = await new Product({
+      name: name,
+      price:price,
+      stock:stock
+    })
+    await product.save()
+    
+    res.json({
+      error:false,
+      msg:"Producto cargado"
+    })
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al crear producto" });
+    res.json({
+      error:true,
+      msg:error.message
+    })
   }
 });
 
 // Corregir la ruta PUT para que use :id
-app.put("/products/:id", async (req, res) => {
+app.put("/", async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, price, stock } = req.body;
-
-    const product = await Product.findByPk(id);
-    if (!product) {
-      return res.status(404).json({ error: "Producto no encontrado" });
-    }
-
-    product.name = name ?? product.name;
-    product.price = price ?? product.price;
-    product.stock = stock ?? product.stock;
-
-    await product.save();
-    res.json(product);
+    const query = req.query
+    res.json({
+      error:false,
+      msg:query
+    })
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al actualizar producto" });
+   res.json({
+      error:true,
+      msg:"Error al modificar producto"
+    })
   }
 });
 
-app.delete("/products/:id", async (req, res) => {
+app.delete("/", async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await Product.findByPk(id);
-
-    if (!product) {
-      return res.status(404).json({ error: "Producto no encontrado" });
-    }
-
-    await product.destroy();
-    res.json({ message: "Producto eliminado correctamente" });
+    res.json("ruta delete")
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al eliminar producto" });
+    res.json({
+      error:true,
+      msg: error.message
+    })
   }
 });
 

@@ -1,19 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router";
-import Container from "./components/Container";
-import ProductForm from "./components/ProductForm";
-
+import { BrowserRouter, Routes, Route } from "react-router"
+import { ProductForm } from './components/ProductForm'
+import { ProductList } from './components/ProductList'
+import { ToastContainer } from "react-toastify"
 function App() {
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Container />} />
-        <Route path="/edit/:id" element={<ProductForm />} />
-        <Route path="/create" element={<ProductForm />} />
-        <Route path="*" element={<h2>404 No encontrado</h2>} />
+        <Route path="/" element={<ProductList />} />
+        <Route path="/product" element={<ProductForm />} />
+        <Route path="*" element={<h1>404 no encontrado</h1>} />
       </Routes>
+      <ToastContainer
+        theme="colored"
+      />
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
-
+export default App

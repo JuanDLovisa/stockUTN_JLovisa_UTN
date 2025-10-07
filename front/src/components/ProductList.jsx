@@ -1,27 +1,43 @@
-import ProductRow from "./ProductRow";
+import { useEffect, useState } from 'react'
+import { Container } from './Container'
+import { toast } from 'react-toastify'
+import { ProductRow } from './ProductRow'
+export const ProductList = () => {
 
-const ProductList = ({ products, onDelete }) => {
+  const [data, setData] = useState([])
+  useEffect(() => {
+    const getProduct = async () => {
+      const req = await fetch('http://localhost:3000', {
+        headers: {
+          'content-type': 'application/json',
+          accept: 'application/json'
+        }
+      })
+      const res = await req.json()
+      if (res.error) {
+        toast.error(res.msg)
+        return
+      }
+      setData(res.data)
+    }
+
+    getProduct()
+  }, [])
+
+
+  async function handleDelete(id) {
+    toast.info(`${id} fue eliminado`)
+  }
+
+
+
+
   return (
-    <table className="min-w-full table-fixed border border-gray-200 shadow-md rounded overflow-hidden">
-      <thead className="bg-gray-200 text-center text-gray-700 uppercase text-sm">
-        <tr>
-          <th className="px-6 py-3 w-1/4 text-center">Nombre</th>
-          <th className="px-6 py-3 w-1/4 text-center">Precio</th>
-          <th className="px-6 py-3 w-1/4 text-center">Stock</th>
-          <th className="px-6 py-3 w-1/4 text-center">Acciones</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-200">
-        {products.map((product) => (
-          <ProductRow
-            key={product.id}
-            product={product}
-            onDelete={onDelete}
-          />
-        ))}
-      </tbody>
-    </table>
-  );
-};
 
-export default ProductList;
+    <Container>
+      {
+        data.map((d) => <ProductRow key={d.id} data={d} onDelete={handleDelete} />)
+      }
+    </Container>
+  )
+}

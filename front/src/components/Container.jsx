@@ -1,47 +1,9 @@
-import { useState, useEffect } from "react";
-import ProductList from "./ProductList";
-
-const Container = () => {
-  const [products, setProducts] = useState([]);
-
-  const loadProducts = async () => {
-    try {
-      const res = await fetch("http://localhost:3000/products");
-      const data = await res.json();
-      setProducts(data);
-    } catch (error) {
-      console.error("Error al cargar productos", error);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("¿Eliminar este producto?");
-    if (!confirmDelete) return;
-
-    try {
-      const res = await fetch(`http://localhost:3000/products/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        throw new Error("Error al eliminar producto");
-      }
-      // Actualizar en el frontend
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-    } catch (error) {
-      console.error("Error al eliminar:", error);
-    }
-  };
-
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
+export const Container = ({ children }) => {
   return (
-    <div className="w-full h-screen bg-gradient-to-b from-gray-50 to-gray-200 pt-5">
-      <h1 className="text-4xl mb-5 font-bold text-center">Lista de productos</h1>
-      <ProductList products={products} onDelete={handleDelete} />
+    <div className="container mx-auto py-5 text-center">
+      <a href="/product" className="w-1/3 bg-neutral-600 text-neutral-50 p-3 rounded shadow cursor-pointer 
+      font-bold hover:bg-green-600 mb-5 inline-block text-center">Cargar Producto</a>
+      {children}
     </div>
-  );
-};
-
-export default Container;
+  )
+}
