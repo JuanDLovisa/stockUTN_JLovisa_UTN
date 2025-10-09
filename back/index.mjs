@@ -55,7 +55,6 @@ app.post("/", async (req, res) => {
   }
 });
 
-// Corregir la ruta PUT para que use :id
 app.put("/", async (req, res) => {
   try {
     const query = req.query
@@ -72,8 +71,17 @@ app.put("/", async (req, res) => {
 });
 
 app.delete("/", async (req, res) => {
+  const id = parseInt(req.query.id)
   try {
-    res.json("ruta delete")
+    if(!id) {
+      return res.status(400).json({error:true, msg:"Producto no encontrado"})
+    }
+    const product = Product.findByPk(id)
+    await product.destroy()
+    res.json({
+      error:false,
+      msg:"Producto eliminado"
+    })
   } catch (error) {
     res.json({
       error:true,
